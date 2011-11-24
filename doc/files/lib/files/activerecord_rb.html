@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html 
+     PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>File: activerecord.rb</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <meta http-equiv="Content-Script-Type" content="text/javascript" />
+  <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
+  <script type="text/javascript">
+  // <![CDATA[
+
+  function popupCode( url ) {
+    window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+  }
+
+  function toggleCode( id ) {
+    if ( document.getElementById )
+      elem = document.getElementById( id );
+    else if ( document.all )
+      elem = eval( "document.all." + id );
+    else
+      return false;
+
+    elemStyle = elem.style;
+    
+    if ( elemStyle.display != "block" ) {
+      elemStyle.display = "block"
+    } else {
+      elemStyle.display = "none"
+    }
+
+    return true;
+  }
+  
+  // Make codeblocks hidden by default
+  document.writeln( "<style type=\"text/css\">div.method-source-code { display: none }</style>" )
+  
+  // ]]>
+  </script>
+
+</head>
+<body>
+
+
+
+  <div id="fileHeader">
+    <h1>activerecord.rb</h1>
+    <table class="header-table">
+    <tr class="top-aligned-row">
+      <td><strong>Path:</strong></td>
+      <td>lib/files/activerecord.rb
+      </td>
+    </tr>
+    <tr class="top-aligned-row">
+      <td><strong>Last Update:</strong></td>
+      <td>Thu Nov 24 10:43:50 +0100 2011</td>
+    </tr>
+    </table>
+  </div>
+  <!-- banner header -->
+
+  <div id="bodyContent">
+
+
+
+  <div id="contextContent">
+
+    <div id="description">
+      <h2>DESCRIPTION</h2>
+<p>
+Maps out the tables in the DB
+</p>
+<h1>OVERVIEW</h1>
+<p>
+Data in this DB is derived from cufflinks analyses as follows:
+</p>
+<ul>
+<li>Align reads to reference genome
+
+</li>
+<li>Filter resulting file for uniquely mapped reads
+
+</li>
+<li>Determine expression across multiple samples using cuffdiff
+
+</li>
+<li>Data in Ensembl tables was compared against the EnsEMBL reference
+annotation
+
+</li>
+<li>Data in the Cufflinks tables was derived from EnsEMBL guided reference with
+de-novo predictions and refinement through Cuffdiff NOTE: Cufflinks
+accession numbers are <b>only</b> valid within the context of a species and
+dataset and are NOT stable. Use the ref_id column to relate Cufflinks genes
+and transcripts to EnsEMBL (where possible).
+
+</li>
+</ul>
+<h1>USAGE</h1>
+<pre>
+      require 'expression-database'
+      ExpressionDB::DBConnection.connect(1) // Connects to the database (here: version 1)
+      dataset = ExpressionDB::Dataset.find(:first) // Retrieves the first dataset from the DB
+      dataset.samples.each do |sample|
+              puts sample.name
+      end
+</pre>
+<p>
+// list all samples belonging to the dataset
+</p>
+<pre>
+      human = ExpressionDB::GenomeDb.find_by_name('homo_sapiens')
+      human.ensembl_genes.each do |gene|
+              puts gene.stable_id
+              gene.xref_samples.each do |x|
+                      puts &quot;\t#{x.sample.name} #{x.fpkm}&quot;
+              end
+      end
+</pre>
+<p>
+// Go over all EnsEMBL genes and list expression values across all samples
+</p>
+<pre>
+      gene = ExpressionDB::EnsemblGene.find_by_stable_id('ENSG00000121101')
+      gene.xref_samples.each do |xref|
+              puts &quot;{xref.sample.name} #{x.fpkm}&quot;
+      end
+</pre>
+<p>
+// List all expression values for a given Ensembl gene
+</p>
+
+    </div>
+
+
+   </div>
+
+
+  </div>
+
+
+    <!-- if includes -->
+
+    <div id="section">
+
+
+
+
+
+      
+
+
+    <!-- if method_list -->
+
+
+  </div>
+
+
+<div id="validator-badges">
+  <p><small><a href="http://validator.w3.org/check/referer">[Validate]</a></small></p>
+</div>
+
+</body>
+</html>
