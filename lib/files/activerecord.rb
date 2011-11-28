@@ -1,12 +1,12 @@
 # == DESCRIPTION
-# Maps out the tables in the DB
+# An expression database.
 # = OVERVIEW
 # Data in this DB is derived from cufflinks analyses as follows:
 # - Align reads to reference genome
 # - Filter resulting file for uniquely mapped reads
 # - Determine expression across multiple samples using cuffdiff
-# - Data in Ensembl tables was compared against the EnsEMBL reference annotation
-# - Data in the Cufflinks tables was derived from EnsEMBL guided reference with de-novo predictions and refinement through Cuffdiff
+# - Data in Ensembl tables was compared against the EnsEMBL reference annotation (-g, -G)
+# - Data in the Cufflinks tables was derived from EnsEMBL guided reference with de-novo predictions (-g) and refinement through Cuffdiff
 #   NOTE: Cufflinks accession numbers are *only* valid within the context of a species and dataset and are NOT stable. Use the ref_id column
 #   to relate Cufflinks genes and transcripts to EnsEMBL (where possible).
 # = USAGE
@@ -59,8 +59,8 @@ module ExpressionDB
 	# = DESCRIPTION
 	# A sample refers to a particular tissue, from which reads 
 	# were measured. Samples belong to datasets and are
-	# connected to ensembl_genes and cufflinks_genes through
-	# xref_ensembl_genes_samples (or equivalent).
+	# connected to genes and transcripts through
+	# xref_samples.
 	class Sample < DBConnection
 		set_primary_key 'sample_id'
 		belongs_to :dataset, :foreign_key => "dataset_id"
@@ -77,14 +77,21 @@ module ExpressionDB
 	#		puts "#{x.sample.name} #{x.fpkm}"
 	#	end
 	class EnsemblGene < DBConnection
-		set_primary_key 'gene_id'
+		set_primary_key 'ensembl_gene_id'
 		belongs_to :genome_db, :foreign_key => "genome_db_id"
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'ensembl_gene'"
+		has_many :ensembl_transcripts
 		
 		# = DESCRIPTION
 		# Returns xrefs only for samples from a given dataset (ExpressionDB::Dataset object)
 		def xrefs_by_dataset(dataset)
 			return self.xref_samples.select{|x| x.sample.dataset == dataset }
+		end
+		
+		# = DESCRIPTION
+		# Returns xrefs only for specific samples (ExpressionDB::Sample object required)
+		def xrefs_by_sample(sample)
+			return self.xref_samples.select{|x| x.sample == sample}
 		end
 		
 	end
@@ -94,7 +101,7 @@ module ExpressionDB
 	# transcripts. Transcripts belong to ensembl_genes and
 	# are connected to samples through xref_samples
 	class EnsemblTranscript < DBConnection
-		set_primary_key 'transcript_id'
+		set_primary_key 'ensembl_transcript_id'
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'ensembl_transcript'"
 		belongs_to :ensembl_gene
 		
@@ -102,6 +109,12 @@ module ExpressionDB
 		# Returns xrefs only for samples from a given dataset (ExpressionDB::Dataset object)
 		def xrefs_by_dataset(dataset)
 			return self.xref_samples.select{|x| x.sample.dataset == dataset }
+		end
+	
+		# = DESCRIPTION
+		# Returns xrefs only for specific samples (ExpressionDB::Sample object required)		
+		def xrefs_by_sample(sample)
+			return self.xref_samples.select{|x| x.sample == sample}
 		end
 		
 	end
@@ -123,6 +136,12 @@ module ExpressionDB
 		def xrefs_by_dataset(dataset)
 			return self.xref_samples.select{|x| x.sample.dataset == dataset }
 		end
+		
+		# = DESCRIPTION
+		# Returns xrefs only for specific samples (ExpressionDB::Sample object required)		
+		def xrefs_by_sample(sample)
+			return self.xref_samples.select{|x| x.sample == sample}
+		end
 
 	end
 	
@@ -141,11 +160,21 @@ module ExpressionDB
 			return self.xref_samples.select{|x| x.sample.dataset == dataset }
 		end
 		
+		# = DESCRIPTION
+		# Returns xrefs only for specific samples (ExpressionDB::Sample object required)
+		def xrefs_by_sample(sample)
+			return self.xref_samples.select{|x| x.sample == sample}
+		end
+			
 	end
 	
 	# = DESCRIPTION
 	# Links the gene/transcript tables to samples. 
 	# This table holds the expression data!
+	# = IMPORTANT
+	# This table links multiple tables to the sample table. Source tables are
+	# specified via the source_type column. Do not insert data unless specifying
+	# the *correct* source_type.
 	class XrefSample < DBConnection
 		
 		set_primary_key 'xref_id'
