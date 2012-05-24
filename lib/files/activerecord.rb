@@ -9,6 +9,9 @@
 # - Data in the Cufflinks tables was derived from EnsEMBL guided reference with de-novo predictions (-g) and refinement through Cuffdiff
 #   NOTE: Cufflinks accession numbers are *only* valid within the context of a species and dataset and are NOT stable. Use the ref_id column
 #   to relate Cufflinks genes and transcripts to EnsEMBL (where possible).
+# = TIP
+# When in doubt, you can always use ´.inspect´ on any object to get a full ist of 
+# available attributes
 # = USAGE
 #	require 'expression-database'
 # 	ExpressionDB::DBConnection.connect(1) // Connects to the database (here: version 1)
@@ -25,9 +28,9 @@
 #			puts "\t#{x.sample.name} #{x.fpkm}"
 #		end
 #	end
-# // Go over all EnsEMBL genes and list expression values across all samples 
+# // Go over all annotated genes and list expression values across all samples 
 #
-#	gene = ExpressionDB::EnsemblGene.find_by_stable_id('ENSG00000121101')
+#	gene = ExpressionDB::Gene.find_by_stable_id('ENSG00000121101')
 #	gene.xref_samples.each do |xref|
 #		puts "{xref.sample.name} #{x.fpkm}"
 #	end
@@ -55,6 +58,16 @@ module ExpressionDB
 		has_many :samples
 		has_many :cufflinks_genes
 	end
+
+	# = DESCRIPTION
+	# The source of the gene annotation - can be 
+	# ensembl, rum, none
+	class Annotation < DBConnection
+		set_primary_key 'annotation_id'
+		has_many :genes
+		has_many :cufflinks_genes
+
+	end
 	
 	# = DESCRIPTION
 	# A sample refers to a particular tissue, from which reads 
@@ -68,30 +81,51 @@ module ExpressionDB
 	end
 		
 	# = DESCRIPTION
-	# A table holding information on EnsEMBL
+	# A table holding information on annotated
 	# genes. Genes belong to genome_dbs and are connect to samples
 	# through xref_samples.
 	# = USAGE
-	#	gene = ExpressionDB::EnsemblGene.find_by_stable_id('ENSG00000121101')
+	#	gene = ExpressionDB::Gene.find_by_stable_id('ENSG00000121101')
 	#	gene.xref_samples.each do |xref|
 	#		puts "#{x.sample.name} #{x.fpkm}"
 	#	end
-	class EnsemblGene < DBConnection
-		set_primary_key 'ensembl_gene_id'
+	class Gene < DBConnection
+		set_primary_key 'gene_id'
 		belongs_to :genome_db, :foreign_key => "genome_db_id"
-		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'ensembl_gene'"
-		has_many :ensembl_transcripts
+		belongs_to :annotation, :foreign_key => "annotation_id"
+		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'gene'", :order => 'sample_id ASC'
+		has_many :transcripts
 		
 		# = DESCRIPTION
 		# Returns xrefs only for samples from a given dataset (ExpressionDB::Dataset object)
 		def xrefs_by_dataset(dataset)
-			return self.xref_samples.select{|x| x.sample.dataset == dataset }
+			return self.xref_samples.select{|x| x.sample.dataset == dataset }.sort_by{|x| x.sample.name}
 		end
 		
 		# = DESCRIPTION
 		# Returns xrefs only for specific samples (ExpressionDB::Sample object required)
 		def xrefs_by_sample(sample)
 			return self.xref_samples.select{|x| x.sample == sample}
+		end
+
+		# = DESCRIPTION
+		# Collects all expression values for this gene within a given
+		# dataset and calculate the expression entropy as:
+		# S = -sum(Pi x ln(Pi)) with ...
+		def entropy_by_dataset(dataset)
+			xrefs = self.xrefs_by_dataset(dataset)			
+			fpkms = xrefs.collect{|x| x.fpkm.to_f }
+			t = 0.0 # the summ of all expressions
+			fpkms.each {|f| t+= f }
+			p = [] # the values for each tissue as fraction of the total
+			xrefs.each do |xref|
+				e = xref.fpkm/t	
+							
+				e > 0.0 ? p << e*Math.log(e) : p << 0.0
+			end
+			answer = 0.0
+			p.each  {|element| answer += element }
+			return answer*(-1)	
 		end
 		
 	end
@@ -100,15 +134,15 @@ module ExpressionDB
 	# A table holding information on EnsEMBL
 	# transcripts. Transcripts belong to ensembl_genes and
 	# are connected to samples through xref_samples
-	class EnsemblTranscript < DBConnection
-		set_primary_key 'ensembl_transcript_id'
-		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'ensembl_transcript'"
-		belongs_to :ensembl_gene
+	class Transcript < DBConnection
+		set_primary_key 'transcript_id'
+		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'transcript'", :order => 'sample_id ASC'
+		belongs_to :gene
 		
 		# = DESCRIPTION
 		# Returns xrefs only for samples from a given dataset (ExpressionDB::Dataset object)
 		def xrefs_by_dataset(dataset)
-			return self.xref_samples.select{|x| x.sample.dataset == dataset }
+			return self.xref_samples.select{|x| x.sample.dataset == dataset }.sort_by{|x| x.sample.name}
 		end
 	
 		# = DESCRIPTION
@@ -128,19 +162,43 @@ module ExpressionDB
 		set_primary_key 'cufflinks_gene_id'
 		belongs_to :dataset, :foreign_key => 'dataset_id'
 		belongs_to :genome_db, :foreign_key => 'genome_db_id'
+		belongs_to :annotation, :foreign_key => 'annotation_id'
 		has_many :cufflinks_transcripts
-		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_gene'"
+		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_gene'", :order => 'sample_id ASC'
 		
 		# = DESCRIPTION
 		# Returns xrefs only for samples from a given dataset (ExpressionDB::Dataset object)
 		def xrefs_by_dataset(dataset)
-			return self.xref_samples.select{|x| x.sample.dataset == dataset }
+			return self.xref_samples.select{|x| x.sample.dataset == dataset }.sort_by{|x| x.sample.name}
 		end
 		
 		# = DESCRIPTION
 		# Returns xrefs only for specific samples (ExpressionDB::Sample object required)		
 		def xrefs_by_sample(sample)
 			return self.xref_samples.select{|x| x.sample == sample}
+		end
+
+		# = DESCRIPTION
+		# Collects all expression values for this gene within a given
+		# dataset and calculate the expression entropy as:
+		# S = -sum(Pi x ln(Pi)) with ...
+		def entropy_by_dataset(dataset)
+			xrefs = self.xrefs_by_dataset(dataset)			
+			fpkms = xrefs.collect{|x| x.fpkm.to_f }
+			t = 0.0 # the summ of all expressions
+			fpkms.each {|f| t+= f }
+			p = [] # the values for each tissue as fraction of the total
+			xrefs.each do |xref|
+				e = xref.fpkm/t	
+							
+				e > 0.0 ? p << e*Math.log(e) : p << 0.0
+			end
+			answer = 0.0
+			p.each  {|element| answer += element }
+			t = nil
+			p.delete
+			fpkms.delete
+			return answer*(-1)	
 		end
 
 	end
@@ -157,7 +215,7 @@ module ExpressionDB
 		# = DESCRIPTION
 		# Returns xrefs only for samples from a given dataset (ExpressionDB::Dataset object)
 		def xrefs_by_dataset(dataset)
-			return self.xref_samples.select{|x| x.sample.dataset == dataset }
+			return self.xref_samples.select{|x| x.sample.dataset == dataset }.sort_by{|x| x.sample.name}
 		end
 		
 		# = DESCRIPTION
@@ -169,6 +227,29 @@ module ExpressionDB
 	end
 	
 	# = DESCRIPTION
+	# Holds information on external databases
+	# Allows association of mapped features for annotations
+	class ExternalDb < DBConnection
+		set_primary_key 'external_db_id'
+		has_many :xref_features,
+	end
+	
+	# = DESCRIPTION
+	# Links the different annotation tables to the external_db table
+	# Allows for mapping of aligned features (PFAM, BLAST, etc...)
+	class XrefFeature < DBConnection
+
+		set_primary_key 'xref_feature_id'
+		belongs_to :external_db, :foreign_key => 'external_db_id'
+		belongs_to :ensembl_gene, :class_name => "Gene", :foreign_key => 'source_id', :conditions => ["source_type = 'gene'"]
+      		belongs_to :ensembl_transcript, :class_name => "Transcript", :foreign_key => 'source_id', :conditions => ["source_type = 'transcript'"]
+      		belongs_to :cufflinks_gene, :class_name => "CufflinksGene", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_gene'"]
+      		belongs_to :cufflinks_transcript, :class_name => "CufflinksTranscript", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_transcript'"]
+
+
+	end
+
+	# = DESCRIPTION
 	# Links the gene/transcript tables to samples. 
 	# This table holds the expression data!
 	# = IMPORTANT
@@ -179,10 +260,9 @@ module ExpressionDB
 		
 		set_primary_key 'xref_id'
 		belongs_to :sample, :foreign_key => 'sample_id'
-     	belongs_to :ensembl_gene, :class_name => "EnsemblGene", :foreign_key => 'source_id', :conditions => ["source_type = 'ensembl_gene'"]
-      	belongs_to :ensembl_transcript, :class_name => "EnsemblTranscript", :foreign_key => 'source_id', :conditions => ["source_type = 'ensembl_transcript'"]
-      	belongs_to :cufflinks_gene, :class_name => "CufflinksGene", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_gene'"]
-      	belongs_to :cufflinks_gene, :class_name => "CufflinksTranscript", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_transcript'"]
-	
+	     	belongs_to :ensembl_gene, :class_name => "Gene", :foreign_key => 'source_id', :conditions => ["source_type = 'gene'"]
+      		belongs_to :ensembl_transcript, :class_name => "Transcript", :foreign_key => 'source_id', :conditions => ["source_type = 'transcript'"]
+      		belongs_to :cufflinks_gene, :class_name => "CufflinksGene", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_gene'"]
+      		belongs_to :cufflinks_transcript, :class_name => "CufflinksTranscript", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_transcript'"]
 	end
 end

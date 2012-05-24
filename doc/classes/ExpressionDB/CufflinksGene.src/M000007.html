@@ -5,12 +5,12 @@
 
 <html>
 <head>
-  <title>xrefs_by_dataset (ExpressionDB::EnsemblTranscript)</title>
+  <title>xrefs_by_dataset (ExpressionDB::CufflinksGene)</title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
 </head>
 <body class="standalone-code">
-  <pre><span class="ruby-comment cmt"># File lib/files/activerecord.rb, line 110</span>
+  <pre><span class="ruby-comment cmt"># File lib/files/activerecord.rb, line 136</span>
                 <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">xrefs_by_dataset</span>(<span class="ruby-identifier">dataset</span>)
                         <span class="ruby-keyword kw">return</span> <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">xref_samples</span>.<span class="ruby-identifier">select</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">x</span>.<span class="ruby-identifier">sample</span>.<span class="ruby-identifier">dataset</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">dataset</span> }
                 <span class="ruby-keyword kw">end</span></pre>
