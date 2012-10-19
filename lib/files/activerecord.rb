@@ -44,7 +44,7 @@ module ExpressionDB
 	# on the various genomes. Genomes have both ensembl_genes
 	# as well as cufflinks_genes (see below)
 	class GenomeDb < DBConnection
-		set_primary_key "genome_db_id"
+		self.primary_key = "genome_db_id"
 		has_many :genes
 		has_many :cufflinks_genes
 	end
@@ -54,7 +54,7 @@ module ExpressionDB
 	# the expression data was taken from. Datasets have samples, which
 	# are connected to ensembl_genes and cufflinks_genes with FPKM values
 	class Dataset < DBConnection
-		set_primary_key 'dataset_id'
+		self.primary_key = 'dataset_id'
 		has_many :samples
 		has_many :cufflinks_genes
 	end
@@ -63,7 +63,7 @@ module ExpressionDB
 	# The source of the gene annotation - can be 
 	# ensembl, rum, none
 	class Annotation < DBConnection
-		set_primary_key 'annotation_id'
+		self.primary_key = 'annotation_id'
 		has_many :genes
 		has_many :cufflinks_genes
 
@@ -75,7 +75,7 @@ module ExpressionDB
 	# connected to genes and transcripts through
 	# xref_samples.
 	class Sample < DBConnection
-		set_primary_key 'sample_id'
+		self.primary_key = 'sample_id'
 		belongs_to :dataset, :foreign_key => "dataset_id"
 		has_many :xref_samples
 	end
@@ -90,7 +90,7 @@ module ExpressionDB
 	#		puts "#{x.sample.name} #{x.fpkm}"
 	#	end
 	class Gene < DBConnection
-		set_primary_key 'gene_id'
+		self.primary_key = 'gene_id'
 		belongs_to :genome_db, :foreign_key => "genome_db_id"
 		belongs_to :annotation, :foreign_key => "annotation_id"
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'gene'", :order => 'sample_id ASC'
@@ -136,7 +136,7 @@ module ExpressionDB
 	# transcripts. Transcripts belong to ensembl_genes and
 	# are connected to samples through xref_samples
 	class Transcript < DBConnection
-		set_primary_key 'transcript_id'
+		self.primary_key = 'transcript_id'
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'transcript'", :order => 'sample_id ASC'
 		has_many :xref_features, :foreign_key => 'source_id', :conditions => "source_type = 'transcript'", :order => 'external_db_id ASC'
 		belongs_to :gene
@@ -161,7 +161,7 @@ module ExpressionDB
 	# These models are *only* valid within the context of a given dataset.
 	# They are connected to sample through xref_samples
 	class CufflinksGene < DBConnection
-		set_primary_key 'cufflinks_gene_id'
+		self.primary_key = 'cufflinks_gene_id'
 		belongs_to :dataset, :foreign_key => 'dataset_id'
 		belongs_to :genome_db, :foreign_key => 'genome_db_id'
 		belongs_to :annotation, :foreign_key => 'annotation_id'
@@ -209,7 +209,7 @@ module ExpressionDB
 	# Transcripts belong to context-dependend cufflinks_genes.
 	# They are connected to sample through xref_samples 
 	class CufflinksTranscript < DBConnection
-		set_primary_key 'cufflinks_transcript_id'
+		self.primary_key = 'cufflinks_transcript_id'
 		belongs_to :cufflinks_gene
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_transcript'"
 		has_many :xref_features, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_transcript'", :order => 'external_db_id ASC'
@@ -232,7 +232,7 @@ module ExpressionDB
 	# Holds information on external databases
 	# Allows association of mapped features for annotations
 	class ExternalDb < DBConnection
-		set_primary_key 'external_db_id'
+		self.primary_key = 'external_db_id'
 		has_many :xref_features
 	end
 	
@@ -241,7 +241,7 @@ module ExpressionDB
 	# Allows for mapping of aligned features (PFAM, BLAST, etc...)
 	class XrefFeature < DBConnection
 
-		set_primary_key 'xref_feature_id'
+		self.primary_key = 'xref_feature_id'
 		belongs_to :external_db, :foreign_key => 'external_db_id'
 		belongs_to :gene, :class_name => "Gene", :foreign_key => 'source_id', :conditions => ["source_type = 'gene'"]
       		belongs_to :transcript, :class_name => "Transcript", :foreign_key => 'source_id', :conditions => ["source_type = 'transcript'"]
@@ -258,7 +258,7 @@ module ExpressionDB
 	# the *correct* source_type.
 	class XrefSample < DBConnection
 		
-		set_primary_key 'xref_id'
+		self.primary_key = 'xref_id'
 		belongs_to :sample, :foreign_key => 'sample_id'
 	     	belongs_to :gene, :class_name => "Gene", :foreign_key => 'source_id', :conditions => ["source_type = 'gene'"]
       		belongs_to :transcript, :class_name => "Transcript", :foreign_key => 'source_id', :conditions => ["source_type = 'transcript'"]
@@ -276,7 +276,7 @@ module ExpressionDB
 	# = DESCRIPTION
 	# Name of chromosomes and their length
 	class SeqRegion < DBConnection
-		set_primary_key 'seq_region_id'
+		self.primary_key = 'seq_region_id'
 	end
 
 end
