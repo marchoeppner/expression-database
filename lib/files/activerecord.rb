@@ -45,7 +45,7 @@ module ExpressionDB
 	# as well as cufflinks_genes (see below)
 	class GenomeDb < DBConnection
 		set_primary_key "genome_db_id"
-		has_many :ensembl_genes
+		has_many :genes
 		has_many :cufflinks_genes
 	end
 	
@@ -94,6 +94,7 @@ module ExpressionDB
 		belongs_to :genome_db, :foreign_key => "genome_db_id"
 		belongs_to :annotation, :foreign_key => "annotation_id"
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'gene'", :order => 'sample_id ASC'
+		has_many :xref_features, :foreign_key => 'source_id', :conditions => "source_type = 'gene'", :order => 'external_db_id ASC'
 		has_many :transcripts
 		
 		# = DESCRIPTION
@@ -137,6 +138,7 @@ module ExpressionDB
 	class Transcript < DBConnection
 		set_primary_key 'transcript_id'
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'transcript'", :order => 'sample_id ASC'
+		has_many :xref_features, :foreign_key => 'source_id', :conditions => "source_type = 'transcript'", :order => 'external_db_id ASC'
 		belongs_to :gene
 		
 		# = DESCRIPTION
@@ -165,6 +167,7 @@ module ExpressionDB
 		belongs_to :annotation, :foreign_key => 'annotation_id'
 		has_many :cufflinks_transcripts
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_gene'", :order => 'sample_id ASC'
+		has_many :xref_features, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_gene'", :order => 'external_db_id ASC'
 		
 		# = DESCRIPTION
 		# Returns xrefs only for samples from a given dataset (ExpressionDB::Dataset object)
@@ -196,8 +199,6 @@ module ExpressionDB
 			answer = 0.0
 			p.each  {|element| answer += element }
 			t = nil
-			p.delete
-			fpkms.delete
 			return answer*(-1)	
 		end
 
@@ -211,6 +212,7 @@ module ExpressionDB
 		set_primary_key 'cufflinks_transcript_id'
 		belongs_to :cufflinks_gene
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_transcript'"
+		has_many :xref_features, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_transcript'", :order => 'external_db_id ASC'
 		
 		# = DESCRIPTION
 		# Returns xrefs only for samples from a given dataset (ExpressionDB::Dataset object)
@@ -231,7 +233,7 @@ module ExpressionDB
 	# Allows association of mapped features for annotations
 	class ExternalDb < DBConnection
 		set_primary_key 'external_db_id'
-		has_many :xref_features,
+		has_many :xref_features
 	end
 	
 	# = DESCRIPTION
@@ -241,12 +243,10 @@ module ExpressionDB
 
 		set_primary_key 'xref_feature_id'
 		belongs_to :external_db, :foreign_key => 'external_db_id'
-		belongs_to :ensembl_gene, :class_name => "Gene", :foreign_key => 'source_id', :conditions => ["source_type = 'gene'"]
-      		belongs_to :ensembl_transcript, :class_name => "Transcript", :foreign_key => 'source_id', :conditions => ["source_type = 'transcript'"]
+		belongs_to :gene, :class_name => "Gene", :foreign_key => 'source_id', :conditions => ["source_type = 'gene'"]
+      		belongs_to :transcript, :class_name => "Transcript", :foreign_key => 'source_id', :conditions => ["source_type = 'transcript'"]
       		belongs_to :cufflinks_gene, :class_name => "CufflinksGene", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_gene'"]
       		belongs_to :cufflinks_transcript, :class_name => "CufflinksTranscript", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_transcript'"]
-
-
 	end
 
 	# = DESCRIPTION
@@ -260,9 +260,23 @@ module ExpressionDB
 		
 		set_primary_key 'xref_id'
 		belongs_to :sample, :foreign_key => 'sample_id'
-	     	belongs_to :ensembl_gene, :class_name => "Gene", :foreign_key => 'source_id', :conditions => ["source_type = 'gene'"]
-      		belongs_to :ensembl_transcript, :class_name => "Transcript", :foreign_key => 'source_id', :conditions => ["source_type = 'transcript'"]
+	     	belongs_to :gene, :class_name => "Gene", :foreign_key => 'source_id', :conditions => ["source_type = 'gene'"]
+      		belongs_to :transcript, :class_name => "Transcript", :foreign_key => 'source_id', :conditions => ["source_type = 'transcript'"]
       		belongs_to :cufflinks_gene, :class_name => "CufflinksGene", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_gene'"]
       		belongs_to :cufflinks_transcript, :class_name => "CufflinksTranscript", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_transcript'"]
 	end
+
+	# = DESCRIPTION
+	# Coordinates for repeat elements.
+	class Repeat < DBConnection
+		set_primary_keys :chr_name, :chr_start, :chr_end
+
+	end
+
+	# = DESCRIPTION
+	# Name of chromosomes and their length
+	class SeqRegion < DBConnection
+		set_primary_key 'seq_region_id'
+	end
+
 end
