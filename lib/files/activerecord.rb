@@ -269,7 +269,7 @@ module ExpressionDB
 	# = DESCRIPTION
 	# Coordinates for repeat elements.
 	class Repeat < DBConnection
-		set_primary_keys :chr_name, :chr_start, :chr_end
+		self.primary_keys :chr_name, :chr_start, :chr_end
 
 	end
 
