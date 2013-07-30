@@ -1,28 +1,19 @@
 # == DESCRIPTION
 # An expression database.
 # = OVERVIEW
-# Data in this DB is derived from cufflinks analyses as follows:
-# - Align reads to reference genome
-# - Filter resulting file for uniquely mapped reads
-# - Determine expression across multiple samples using cuffdiff
-# - Data in Ensembl tables was compared against the EnsEMBL reference annotation (-g, -G)
-# - Data in the Cufflinks tables was derived from EnsEMBL guided reference with de-novo predictions (-g) and refinement through Cuffdiff
-#   NOTE: Cufflinks accession numbers are *only* valid within the context of a species and dataset and are NOT stable. Use the ref_id column
-#   to relate Cufflinks genes and transcripts to EnsEMBL (where possible).
-# = TIP
 # When in doubt, you can always use ´.inspect´ on any object to get a full ist of 
 # available attributes
 # = USAGE
 #	require 'expression-database'
-# 	ExpressionDB::DBConnection.connect(1) // Connects to the database (here: version 1)
-# 	dataset = ExpressionDB::Dataset.find(:first) // Retrieves the first dataset from the DB
+# 	ExpressionDB::DBConnection.connect("mammal_expression") // Connects to the database (here: mammal_expression)
+# 	dataset = ExpressionDB::Dataset.find(:first) // Retrieves the first dataset from the DB (usually the only one)
 # 	dataset.samples.each do |sample|
 # 		puts sample.name
 # 	end
 # // list all samples belonging to the dataset
 #
 #	human = ExpressionDB::GenomeDb.find_by_name('homo_sapiens')
-#  	human.ensembl_genes.each do |gene|
+#  	human.genes.each do |gene|
 #		puts gene.stable_id
 #		gene.xref_samples.each do |x|
 #			puts "\t#{x.sample.name} #{x.fpkm}"
@@ -95,6 +86,7 @@ module ExpressionDB
 		belongs_to :annotation, :foreign_key => "annotation_id"
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'gene'", :order => 'sample_id ASC'
 		has_many :xref_features, :foreign_key => 'source_id', :conditions => "source_type = 'gene'", :order => 'external_db_id ASC'
+                has_many :align_features, :foreign_key => 'source_id', :conditions => "source_type = 'gene'"
 		has_many :transcripts
 		
 		# = DESCRIPTION
@@ -139,6 +131,7 @@ module ExpressionDB
 		self.primary_key = 'transcript_id'
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'transcript'", :order => 'sample_id ASC'
 		has_many :xref_features, :foreign_key => 'source_id', :conditions => "source_type = 'transcript'", :order => 'external_db_id ASC'
+                has_many :align_features, :foreign_key => 'source_id', :conditions => "source_type = 'transcript'"
 		belongs_to :gene
 		
 		# = DESCRIPTION
@@ -168,7 +161,8 @@ module ExpressionDB
 		has_many :cufflinks_transcripts
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_gene'", :order => 'sample_id ASC'
 		has_many :xref_features, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_gene'", :order => 'external_db_id ASC'
-		
+                has_many :align_features, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_gene'"		
+
 		# = DESCRIPTION
 		# Returns xrefs only for samples from a given dataset (ExpressionDB::Dataset object)
 		def xrefs_by_dataset(dataset)
@@ -213,6 +207,7 @@ module ExpressionDB
 		belongs_to :cufflinks_gene
 		has_many :xref_samples, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_transcript'"
 		has_many :xref_features, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_transcript'", :order => 'external_db_id ASC'
+                has_many :align_features, :foreign_key => 'source_id', :conditions => "source_type = 'cufflinks_transcript'"
 		
 		# = DESCRIPTION
 		# Returns xrefs only for samples from a given dataset (ExpressionDB::Dataset object)
@@ -247,6 +242,18 @@ module ExpressionDB
       		belongs_to :transcript, :class_name => "Transcript", :foreign_key => 'source_id', :conditions => ["source_type = 'transcript'"]
       		belongs_to :cufflinks_gene, :class_name => "CufflinksGene", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_gene'"]
       		belongs_to :cufflinks_transcript, :class_name => "CufflinksTranscript", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_transcript'"]
+	end
+	
+	# = DESCRIPTION
+	# Links aligned features to genes and transcripts (e.g. miRNA target predictions)
+	class AlignFeature < DBConnection
+		self.primary_key = 'align_feature_id'
+
+		belongs_to :gene, :class_name => "Gene", :foreign_key => 'source_id', :conditions => ["source_type = 'gene'"]
+                belongs_to :transcript, :class_name => "Transcript", :foreign_key => 'source_id', :conditions => ["source_type = 'transcript'"]
+                belongs_to :cufflinks_gene, :class_name => "CufflinksGene", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_gene'"]
+                belongs_to :cufflinks_transcript, :class_name => "CufflinksTranscript", :foreign_key => 'source_id', :conditions => ["source_type = 'cufflinks_transcript'"]
+
 	end
 
 	# = DESCRIPTION

@@ -56,7 +56,7 @@
     </tr>
     <tr class="top-aligned-row">
       <td><strong>Last Update:</strong></td>
-      <td>Mon Nov 28 11:05:03 +0100 2011</td>
+      <td>Mon Nov 26 10:30:46 +0100 2012</td>
     </tr>
     </table>
   </div>
@@ -75,35 +75,14 @@ An expression database.
 </p>
 <h1>OVERVIEW</h1>
 <p>
-Data in this DB is derived from cufflinks analyses as follows:
+When in doubt, you can always use ´.inspect´ on any object to get a full
+ist of available attributes
 </p>
-<ul>
-<li>Align reads to reference genome
-
-</li>
-<li>Filter resulting file for uniquely mapped reads
-
-</li>
-<li>Determine expression across multiple samples using cuffdiff
-
-</li>
-<li>Data in Ensembl tables was compared against the EnsEMBL reference
-annotation (-g, -G)
-
-</li>
-<li>Data in the Cufflinks tables was derived from EnsEMBL guided reference with
-de-novo predictions (-g) and refinement through Cuffdiff NOTE: Cufflinks
-accession numbers are <b>only</b> valid within the context of a species and
-dataset and are NOT stable. Use the ref_id column to relate Cufflinks genes
-and transcripts to EnsEMBL (where possible).
-
-</li>
-</ul>
 <h1>USAGE</h1>
 <pre>
       require 'expression-database'
-      ExpressionDB::DBConnection.connect(1) // Connects to the database (here: version 1)
-      dataset = ExpressionDB::Dataset.find(:first) // Retrieves the first dataset from the DB
+      ExpressionDB::DBConnection.connect(&quot;mammal_expression&quot;) // Connects to the database (here: mammal_expression)
+      dataset = ExpressionDB::Dataset.find(:first) // Retrieves the first dataset from the DB (usually the only one)
       dataset.samples.each do |sample|
               puts sample.name
       end
@@ -113,7 +92,7 @@ and transcripts to EnsEMBL (where possible).
 </p>
 <pre>
       human = ExpressionDB::GenomeDb.find_by_name('homo_sapiens')
-      human.ensembl_genes.each do |gene|
+      human.genes.each do |gene|
               puts gene.stable_id
               gene.xref_samples.each do |x|
                       puts &quot;\t#{x.sample.name} #{x.fpkm}&quot;
@@ -121,10 +100,11 @@ and transcripts to EnsEMBL (where possible).
       end
 </pre>
 <p>
-// Go over all EnsEMBL genes and list expression values across all samples
+// Go over all annotated genes and list expression values across all
+samples
 </p>
 <pre>
-      gene = ExpressionDB::EnsemblGene.find_by_stable_id('ENSG00000121101')
+      gene = ExpressionDB::Gene.find_by_stable_id('ENSG00000121101')
       gene.xref_samples.each do |xref|
               puts &quot;{xref.sample.name} #{x.fpkm}&quot;
       end
