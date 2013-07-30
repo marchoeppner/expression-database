@@ -5,7 +5,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>Class: ExpressionDB::CufflinksTranscript</title>
+  <title>Class: ExpressionDB::Gene</title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <meta http-equiv="Content-Script-Type" content="text/javascript" />
   <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
@@ -50,7 +50,7 @@
         <table class="header-table">
         <tr class="top-aligned-row">
           <td><strong>Class</strong></td>
-          <td class="class-name-in-header">ExpressionDB::CufflinksTranscript</td>
+          <td class="class-name-in-header">ExpressionDB::Gene</td>
         </tr>
         <tr class="top-aligned-row">
             <td><strong>In:</strong></td>
@@ -83,10 +83,16 @@
     <div id="description">
       <h1>DESCRIPTION</h1>
 <p>
-A table holding cufflinks-predicted transcript models. Transcripts belong
-to context-dependend cufflinks_genes. They are connected to sample through
-xref_samples
+A table holding information on annotated genes. Genes belong to genome_dbs
+and are connect to samples through xref_samples.
 </p>
+<h1>USAGE</h1>
+<pre>
+     gene = ExpressionDB::Gene.find_by_stable_id('ENSG00000121101')
+     gene.xref_samples.each do |xref|
+             puts &quot;#{x.sample.name} #{x.fpkm}&quot;
+     end
+</pre>
 
     </div>
 
@@ -97,8 +103,9 @@ xref_samples
       <h3 class="section-bar">Methods</h3>
 
       <div class="name-list">
-      <a href="#M000005">xrefs_by_dataset</a>&nbsp;&nbsp;
-      <a href="#M000006">xrefs_by_sample</a>&nbsp;&nbsp;
+      <a href="#M000011">entropy_by_dataset</a>&nbsp;&nbsp;
+      <a href="#M000009">xrefs_by_dataset</a>&nbsp;&nbsp;
+      <a href="#M000010">xrefs_by_sample</a>&nbsp;&nbsp;
       </div>
     </div>
 
@@ -120,12 +127,31 @@ xref_samples
     <div id="methods">
       <h3 class="section-bar">Public Instance methods</h3>
 
-      <div id="method-M000005" class="method-detail">
-        <a name="M000005"></a>
+      <div id="method-M000011" class="method-detail">
+        <a name="M000011"></a>
 
         <div class="method-heading">
-          <a href="CufflinksTranscript.src/M000005.html" target="Code" class="method-signature"
-            onclick="popupCode('CufflinksTranscript.src/M000005.html');return false;">
+          <a href="Gene.src/M000011.html" target="Code" class="method-signature"
+            onclick="popupCode('Gene.src/M000011.html');return false;">
+          <span class="method-name">entropy_by_dataset</span><span class="method-args">(dataset)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <h1>DESCRIPTION</h1>
+<p>
+Collects all expression values for this gene within a given dataset and
+calculate the expression entropy as: S = -sum(Pi x ln(Pi)) with &#8230;
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000009" class="method-detail">
+        <a name="M000009"></a>
+
+        <div class="method-heading">
+          <a href="Gene.src/M000009.html" target="Code" class="method-signature"
+            onclick="popupCode('Gene.src/M000009.html');return false;">
           <span class="method-name">xrefs_by_dataset</span><span class="method-args">(dataset)</span>
           </a>
         </div>
@@ -139,12 +165,12 @@ href="Dataset.html">ExpressionDB::Dataset</a> object)
         </div>
       </div>
 
-      <div id="method-M000006" class="method-detail">
-        <a name="M000006"></a>
+      <div id="method-M000010" class="method-detail">
+        <a name="M000010"></a>
 
         <div class="method-heading">
-          <a href="CufflinksTranscript.src/M000006.html" target="Code" class="method-signature"
-            onclick="popupCode('CufflinksTranscript.src/M000006.html');return false;">
+          <a href="Gene.src/M000010.html" target="Code" class="method-signature"
+            onclick="popupCode('Gene.src/M000010.html');return false;">
           <span class="method-name">xrefs_by_sample</span><span class="method-args">(sample)</span>
           </a>
         </div>

@@ -65,7 +65,9 @@
         <tr class="top-aligned-row">
             <td><strong>Parent:</strong></td>
             <td>
+                <a href="DBConnection.html">
                 DBConnection
+               </a>
             </td>
         </tr>
         </table>
@@ -95,8 +97,9 @@ to sample through xref_samples
       <h3 class="section-bar">Methods</h3>
 
       <div class="name-list">
-      <a href="#M000007">xrefs_by_dataset</a>&nbsp;&nbsp;
-      <a href="#M000008">xrefs_by_sample</a>&nbsp;&nbsp;
+      <a href="#M000004">entropy_by_dataset</a>&nbsp;&nbsp;
+      <a href="#M000002">xrefs_by_dataset</a>&nbsp;&nbsp;
+      <a href="#M000003">xrefs_by_sample</a>&nbsp;&nbsp;
       </div>
     </div>
 
@@ -118,12 +121,31 @@ to sample through xref_samples
     <div id="methods">
       <h3 class="section-bar">Public Instance methods</h3>
 
-      <div id="method-M000007" class="method-detail">
-        <a name="M000007"></a>
+      <div id="method-M000004" class="method-detail">
+        <a name="M000004"></a>
 
         <div class="method-heading">
-          <a href="CufflinksGene.src/M000007.html" target="Code" class="method-signature"
-            onclick="popupCode('CufflinksGene.src/M000007.html');return false;">
+          <a href="CufflinksGene.src/M000004.html" target="Code" class="method-signature"
+            onclick="popupCode('CufflinksGene.src/M000004.html');return false;">
+          <span class="method-name">entropy_by_dataset</span><span class="method-args">(dataset)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <h1>DESCRIPTION</h1>
+<p>
+Collects all expression values for this gene within a given dataset and
+calculate the expression entropy as: S = -sum(Pi x ln(Pi)) with &#8230;
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000002" class="method-detail">
+        <a name="M000002"></a>
+
+        <div class="method-heading">
+          <a href="CufflinksGene.src/M000002.html" target="Code" class="method-signature"
+            onclick="popupCode('CufflinksGene.src/M000002.html');return false;">
           <span class="method-name">xrefs_by_dataset</span><span class="method-args">(dataset)</span>
           </a>
         </div>
@@ -137,12 +159,12 @@ href="Dataset.html">ExpressionDB::Dataset</a> object)
         </div>
       </div>
 
-      <div id="method-M000008" class="method-detail">
-        <a name="M000008"></a>
+      <div id="method-M000003" class="method-detail">
+        <a name="M000003"></a>
 
         <div class="method-heading">
-          <a href="CufflinksGene.src/M000008.html" target="Code" class="method-signature"
-            onclick="popupCode('CufflinksGene.src/M000008.html');return false;">
+          <a href="CufflinksGene.src/M000003.html" target="Code" class="method-signature"
+            onclick="popupCode('CufflinksGene.src/M000003.html');return false;">
           <span class="method-name">xrefs_by_sample</span><span class="method-args">(sample)</span>
           </a>
         </div>

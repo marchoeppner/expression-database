@@ -55,6 +55,10 @@
         <tr class="top-aligned-row">
             <td><strong>In:</strong></td>
             <td>
+                <a href="../files/lib/files/db_connection_rb.html">
+                lib/files/db_connection.rb
+                </a>
+        <br />
                 <a href="../files/lib/files/activerecord_rb.html">
                 lib/files/activerecord.rb
                 </a>
@@ -79,35 +83,14 @@ An expression database.
 </p>
 <h1>OVERVIEW</h1>
 <p>
-Data in this DB is derived from cufflinks analyses as follows:
+When in doubt, you can always use ´.inspect´ on any object to get a full
+ist of available attributes
 </p>
-<ul>
-<li>Align reads to reference genome
-
-</li>
-<li>Filter resulting file for uniquely mapped reads
-
-</li>
-<li>Determine expression across multiple samples using cuffdiff
-
-</li>
-<li>Data in Ensembl tables was compared against the EnsEMBL reference
-annotation (-g, -G)
-
-</li>
-<li>Data in the Cufflinks tables was derived from EnsEMBL guided reference with
-de-novo predictions (-g) and refinement through Cuffdiff NOTE: Cufflinks
-accession numbers are <b>only</b> valid within the context of a species and
-dataset and are NOT stable. Use the ref_id column to relate Cufflinks genes
-and transcripts to EnsEMBL (where possible).
-
-</li>
-</ul>
 <h1>USAGE</h1>
 <pre>
       require 'expression-database'
-      ExpressionDB::DBConnection.connect(1) // Connects to the database (here: version 1)
-      dataset = ExpressionDB::Dataset.find(:first) // Retrieves the first dataset from the DB
+      ExpressionDB::DBConnection.connect(&quot;mammal_expression&quot;) // Connects to the database (here: mammal_expression)
+      dataset = ExpressionDB::Dataset.find(:first) // Retrieves the first dataset from the DB (usually the only one)
       dataset.samples.each do |sample|
               puts sample.name
       end
@@ -117,7 +100,7 @@ and transcripts to EnsEMBL (where possible).
 </p>
 <pre>
       human = ExpressionDB::GenomeDb.find_by_name('homo_sapiens')
-      human.ensembl_genes.each do |gene|
+      human.genes.each do |gene|
               puts gene.stable_id
               gene.xref_samples.each do |x|
                       puts &quot;\t#{x.sample.name} #{x.fpkm}&quot;
@@ -125,10 +108,11 @@ and transcripts to EnsEMBL (where possible).
       end
 </pre>
 <p>
-// Go over all EnsEMBL genes and list expression values across all samples
+// Go over all annotated genes and list expression values across all
+samples
 </p>
 <pre>
-      gene = ExpressionDB::EnsemblGene.find_by_stable_id('ENSG00000121101')
+      gene = ExpressionDB::Gene.find_by_stable_id('ENSG00000121101')
       gene.xref_samples.each do |xref|
               puts &quot;{xref.sample.name} #{x.fpkm}&quot;
       end
@@ -147,19 +131,32 @@ and transcripts to EnsEMBL (where possible).
 
 
     <!-- if includes -->
+    <div id="includes">
+      <h3 class="section-bar">Included Modules</h3>
+
+      <div id="includes-list">
+        <span class="include-name">ActiveRecord</span>
+      </div>
+    </div>
 
     <div id="section">
 
     <div id="class-list">
       <h3 class="section-bar">Classes and Modules</h3>
 
-      Class <a href="ExpressionDB/CufflinksGene.html" class="link">ExpressionDB::CufflinksGene</a><br />
+      Class <a href="ExpressionDB/Annotation.html" class="link">ExpressionDB::Annotation</a><br />
+Class <a href="ExpressionDB/CufflinksGene.html" class="link">ExpressionDB::CufflinksGene</a><br />
 Class <a href="ExpressionDB/CufflinksTranscript.html" class="link">ExpressionDB::CufflinksTranscript</a><br />
+Class <a href="ExpressionDB/DBConnection.html" class="link">ExpressionDB::DBConnection</a><br />
 Class <a href="ExpressionDB/Dataset.html" class="link">ExpressionDB::Dataset</a><br />
-Class <a href="ExpressionDB/EnsemblGene.html" class="link">ExpressionDB::EnsemblGene</a><br />
-Class <a href="ExpressionDB/EnsemblTranscript.html" class="link">ExpressionDB::EnsemblTranscript</a><br />
+Class <a href="ExpressionDB/ExternalDb.html" class="link">ExpressionDB::ExternalDb</a><br />
+Class <a href="ExpressionDB/Gene.html" class="link">ExpressionDB::Gene</a><br />
 Class <a href="ExpressionDB/GenomeDb.html" class="link">ExpressionDB::GenomeDb</a><br />
+Class <a href="ExpressionDB/Repeat.html" class="link">ExpressionDB::Repeat</a><br />
 Class <a href="ExpressionDB/Sample.html" class="link">ExpressionDB::Sample</a><br />
+Class <a href="ExpressionDB/SeqRegion.html" class="link">ExpressionDB::SeqRegion</a><br />
+Class <a href="ExpressionDB/Transcript.html" class="link">ExpressionDB::Transcript</a><br />
+Class <a href="ExpressionDB/XrefFeature.html" class="link">ExpressionDB::XrefFeature</a><br />
 Class <a href="ExpressionDB/XrefSample.html" class="link">ExpressionDB::XrefSample</a><br />
 
     </div>

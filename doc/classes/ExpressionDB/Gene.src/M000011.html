@@ -5,12 +5,12 @@
 
 <html>
 <head>
-  <title>entropy_by_dataset (ExpressionDB::CufflinksGene)</title>
+  <title>entropy_by_dataset (ExpressionDB::Gene)</title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <link rel="stylesheet" href="../../.././rdoc-style.css" type="text/css" media="screen" />
 </head>
 <body class="standalone-code">
-  <pre><span class="ruby-comment cmt"># File lib/files/activerecord.rb, line 179</span>
+  <pre><span class="ruby-comment cmt"># File lib/files/activerecord.rb, line 107</span>
                 <span class="ruby-keyword kw">def</span> <span class="ruby-identifier">entropy_by_dataset</span>(<span class="ruby-identifier">dataset</span>)
                         <span class="ruby-identifier">xrefs</span> = <span class="ruby-keyword kw">self</span>.<span class="ruby-identifier">xrefs_by_dataset</span>(<span class="ruby-identifier">dataset</span>)                       
                         <span class="ruby-identifier">fpkms</span> = <span class="ruby-identifier">xrefs</span>.<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">x</span><span class="ruby-operator">|</span> <span class="ruby-identifier">x</span>.<span class="ruby-identifier">fpkm</span>.<span class="ruby-identifier">to_f</span> }
@@ -24,7 +24,6 @@
                         <span class="ruby-keyword kw">end</span>
                         <span class="ruby-identifier">answer</span> = <span class="ruby-value">0</span><span class="ruby-value">.0</span>
                         <span class="ruby-identifier">p</span>.<span class="ruby-identifier">each</span>  {<span class="ruby-operator">|</span><span class="ruby-identifier">element</span><span class="ruby-operator">|</span> <span class="ruby-identifier">answer</span> <span class="ruby-operator">+=</span> <span class="ruby-identifier">element</span> }
-                        <span class="ruby-identifier">t</span> = <span class="ruby-keyword kw">nil</span>
                         <span class="ruby-keyword kw">return</span> <span class="ruby-identifier">answer</span><span class="ruby-operator">*</span>(<span class="ruby-value">-1</span>)   
                 <span class="ruby-keyword kw">end</span></pre>
 </body>

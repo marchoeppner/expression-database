@@ -5,7 +5,7 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>Class: ExpressionDB::GenomeDb</title>
+  <title>Class: ExpressionDB::Transcript</title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
   <meta http-equiv="Content-Script-Type" content="text/javascript" />
   <link rel="stylesheet" href="../.././rdoc-style.css" type="text/css" media="screen" />
@@ -50,7 +50,7 @@
         <table class="header-table">
         <tr class="top-aligned-row">
           <td><strong>Class</strong></td>
-          <td class="class-name-in-header">ExpressionDB::GenomeDb</td>
+          <td class="class-name-in-header">ExpressionDB::Transcript</td>
         </tr>
         <tr class="top-aligned-row">
             <td><strong>In:</strong></td>
@@ -83,9 +83,8 @@
     <div id="description">
       <h1>DESCRIPTION</h1>
 <p>
-<a href="GenomeDb.html">GenomeDb</a> is the table that holds information on
-the various genomes. Genomes have both ensembl_genes as well as
-cufflinks_genes (see below)
+A table holding information on EnsEMBL transcripts. Transcripts belong to
+ensembl_genes and are connected to samples through xref_samples
 </p>
 
     </div>
@@ -93,6 +92,14 @@ cufflinks_genes (see below)
 
    </div>
 
+    <div id="method-list">
+      <h3 class="section-bar">Methods</h3>
+
+      <div class="name-list">
+      <a href="#M000007">xrefs_by_dataset</a>&nbsp;&nbsp;
+      <a href="#M000008">xrefs_by_sample</a>&nbsp;&nbsp;
+      </div>
+    </div>
 
   </div>
 
@@ -109,6 +116,49 @@ cufflinks_genes (see below)
 
 
     <!-- if method_list -->
+    <div id="methods">
+      <h3 class="section-bar">Public Instance methods</h3>
+
+      <div id="method-M000007" class="method-detail">
+        <a name="M000007"></a>
+
+        <div class="method-heading">
+          <a href="Transcript.src/M000007.html" target="Code" class="method-signature"
+            onclick="popupCode('Transcript.src/M000007.html');return false;">
+          <span class="method-name">xrefs_by_dataset</span><span class="method-args">(dataset)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <h1>DESCRIPTION</h1>
+<p>
+Returns xrefs only for samples from a given dataset (<a
+href="Dataset.html">ExpressionDB::Dataset</a> object)
+</p>
+        </div>
+      </div>
+
+      <div id="method-M000008" class="method-detail">
+        <a name="M000008"></a>
+
+        <div class="method-heading">
+          <a href="Transcript.src/M000008.html" target="Code" class="method-signature"
+            onclick="popupCode('Transcript.src/M000008.html');return false;">
+          <span class="method-name">xrefs_by_sample</span><span class="method-args">(sample)</span>
+          </a>
+        </div>
+      
+        <div class="method-description">
+          <h1>DESCRIPTION</h1>
+<p>
+Returns xrefs only for specific samples (<a
+href="Sample.html">ExpressionDB::Sample</a> object required)
+</p>
+        </div>
+      </div>
+
+
+    </div>
 
 
   </div>
